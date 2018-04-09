@@ -8,62 +8,74 @@ $(document).ready(function renderbuttons() {
         reactionbutton.addClass("btn btn-primary");
         reactionbutton.attr("value", reactions[i]);
         $("#reactionsgif").append(reactionbutton);
+
+
+    };
+
+    $("#addreaction").on("click", function () {
+        event.preventDefault();
+        var addreaction = $("#reaction-input").val();
+        console.log(addreaction);
+        var addreactionbutton = $("<button>").text(addreaction);
+        addreactionbutton.addClass("reactions");
+        addreactionbutton.addClass("btn btn-primary");
+        addreactionbutton.attr("value", reactions[i]);
+        $("#reactionsgif").append(addreactionbutton);
+        $("#reaction-input").val('');
+    });
+
+    $("#reactionsgif").on("click", ".reactions", function () {
+        $("#gifresults").empty();
+        event.preventDefault();
+        var reaction = $(this).val();
+        console.log(reaction);
     
-                
-    }
-        
-});
-//$("#addreaction").on("click", function (event) {
-   // event.preventDefault();
-    //var newreaction = $("#reaction-input").val().trim();
-    //reactions.push(newreaction);
-    //$("reaction-input").val('')
-    //console.log(reactions);
-
-//});
-      
 
 
-$(document).on("click", ".reactions",function (){
-    $("#gifresults").empty();
-   var title = $(this).val();
-    console.log(title);
+    var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=DbTrA1zDtXF3YA0imZIJ1GeDSwTgnsrv&q=" + reaction + "&limit=5&offset=0&lang=en";
 
-    var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=DbTrA1zDtXF3YA0imZIJ1GeDSwTgnsrv&q=" + title + "&limit=25&offset=0&lang=en";
-    
-        $.ajax({
-            url: queryURL,
-            method: "GET"
-        })
-    .then(function(response){
-        console.log(response);
-        for (var i = 0; i < response.data.length; i++){
-            var moving = response.data[i].fixed_height_small.url;
-            var still = response.data[i].images.original_still.url;
-            var gifimage = $("<img>").attr("src", moving);
-            var gifstill = $("<img>").attr("src", still);
-            var rating = $("<p>").text( "Rating: " + response.data[i].rating);
-            rating.addClass("gif");
-            $("#gifresults").append(rating);
-            $("#gifresults").append(gifimage);                           
-         
-        } 
-
-        if (state === "still") {
-            $(this).attr("src", $(this).attr("data-animate"));
-            $(this).attr("data-state", "animate");
-          } else {
-            $(this).attr("src", $(this).attr("data-still"));
-            $(this).attr("data-state", "still");
-          }
-        });
+    $.ajax({
+        url: queryURL,
+        method: "GET"
     })
+        .then(function (response) {
+            console.log(response);
+            for (var i = 0; i < response.data.length; i++) {
+                var gif = $("<img>");
+                var moving = response.data[i].images.fixed_height_small.url;
+                var still = response.data[i].images.downsized_still.url;
+                var rating = $("<p>").text("Rating: " + response.data[i].rating);
+                rating.addClass("gif");
+                gif.addClass("image");
+                gif.attr('src', still);
+                gif.attr('data-still', still);
+                gif.attr('data-animated', moving);
+                $("#gifresults").append(rating);
+                $("#gifresults").append(gif);
+            };
 
-   
+            $("document").on("click",".image", function(){
+                var state = $(this).data("state");
+                 if ("src" === gif.moving) {
+                    $(this).attr("src", "data-still");
+                 } else {
+                     $(this).attr("src", "data-animated");
+                 }
+            });
+        });
+    });
+});
     
-    
-      
 
-})
+
+
+
+
+
+
+
+
+
+
 
 
